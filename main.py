@@ -5,35 +5,46 @@ import random
 pygame.init()
 pygame.display.set_caption("Jogo Snake Python")
 largura, altura = 800, 600
+margem_total = 16
+margem_borda = 11
+espessura_borda = 3
+
+largura += 2 * margem_total
+altura += 2 * margem_total
+
 tela = pygame.display.set_mode((largura, altura))
 relogio = pygame.time.Clock()
 
 # Cores RGB
 preta = (0, 0, 0)
 branca = (255, 255, 255)
-vermelha = (255, 0, 0)
-verde = (0, 255, 0)
+cinza = (128,128,128)
+verde_claro = (144,238,144)
+verde_medio = (50,205,50)
+verde_escuro = (0, 255, 0)
 
 # Parâmetros da cobra
 tamanho_quadrado = 20
 velocidade_jogo = 15
 
 def gerar_comida():
-    comida_x = round(random.randrange(0, largura - tamanho_quadrado) / float(tamanho_quadrado)) * float(tamanho_quadrado)
-    comida_y = round(random.randrange(0, altura - tamanho_quadrado) / float(tamanho_quadrado)) * float(tamanho_quadrado)
+    comida_x = margem_total + round(random.randrange(0, largura - 2 * margem_total - tamanho_quadrado) / float(tamanho_quadrado)) * float(tamanho_quadrado)
+    comida_y = margem_total + round(random.randrange(0, altura - 2 * margem_total - tamanho_quadrado) / float(tamanho_quadrado)) * float(tamanho_quadrado)
     return comida_x, comida_y
 
 def desenhar_comida(tamanho, comida_x, comida_y):
-    pygame.draw.rect(tela, verde, [comida_x, comida_y, tamanho, tamanho])
+    cor = random.choice([verde_claro, verde_medio, verde_escuro])
+    
+    pygame.draw.rect(tela, cor, [comida_x, comida_y, tamanho, tamanho])
     
 def desenhar_cobra(tamanho, pixels):
     for pixel in pixels:
-        pygame.draw.rect(tela, branca, [pixel[0], pixel[1], tamanho, tamanho])
+        pygame.draw.rect(tela, pixel[2], [pixel[0], pixel[1], tamanho, tamanho])
 
 def desenhar_pontuacao(pontuacao):
-    fonte = pygame.font.SysFont("Helvetica", 35)
-    texto = fonte.render(f"Pontos: {pontuacao}", True, vermelha)
-    tela.blit(texto, [1, 1])
+    fonte = pygame.font.Font("fonts/PixelifySans-VariableFont_wght.ttf", 50)
+    texto = fonte.render(f"{pontuacao:04d}", True, branca)
+    tela.blit(texto, [margem_total, 1])
 
 def selecionar_velocidade(tecla):
     if tecla == pygame.K_DOWN:
@@ -54,6 +65,9 @@ def selecionar_velocidade(tecla):
         
     return velocidade_x, velocidade_y
 
+def desenhar_bordas():
+    pygame.draw.rect(tela, branca, [margem_borda, margem_borda, largura - 2 * margem_borda, altura - 2 * margem_borda], espessura_borda)
+
 def rodar_jogo():
     fim_jogo = False
     
@@ -68,6 +82,8 @@ def rodar_jogo():
     
     comida_x, comida_y = gerar_comida()
     
+    cor = cinza
+    
     while not fim_jogo:
         tela.fill(preta)
         
@@ -78,18 +94,21 @@ def rodar_jogo():
             elif evento.type == pygame.KEYDOWN:
                 velocidade_x, velocidade_y = selecionar_velocidade(evento.key)
         
+        # Desenhar bordas
+        desenhar_bordas()
+        
         # Desenhar comida
         desenhar_comida(tamanho_quadrado, comida_x, comida_y)
         
-        # Atualizar a posição da cobra
-        if x < 0 or x >= largura or y < 0 or y >= altura:
+        if x < margem_total or x >= (largura - margem_total) or y < margem_total or y >= (altura - margem_total):
             fim_jogo = True
         
+        # Atualizar a posição da cobra
         x += velocidade_x
         y += velocidade_y
         
         # Desenhar cobra
-        pixels.append([x, y])
+        pixels.append([x, y, cor])
         if len(pixels) > tamanho_cobra:
             del pixels[0]
         
@@ -110,23 +129,13 @@ def rodar_jogo():
         if x == comida_x and y == comida_y:
             tamanho_cobra += 1
             comida_x, comida_y = gerar_comida()
+            
+            red = random.randint(0, 255)
+            green = random.randint(0, 255)
+            blue = random.randint(0, 255)
+
+            cor = (red, green, blue)
         
         relogio.tick(velocidade_jogo)
-        
-# Criação de um loop
-
-# Desenhar os objetos do jogo na tela
-# Pontuação
-# Cobra
-# Comida
-
-# Criar a lógica de terminar o jogo
-# O que pode acontecer:
-# Cobra colidiu com a parede
-# Cobra colidiu em si mesma
-
-# Capturar as interações do usuário
-# Usuário fechou a tela
-# Usuário pressionou as teclas para realizar a movimentação da cobra
 
 rodar_jogo()
