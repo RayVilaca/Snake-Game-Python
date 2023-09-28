@@ -35,8 +35,8 @@ def gerar_comida():
 
 def desenhar_comida(tamanho, comida_x, comida_y):
     cor = random.choice([verde_claro, verde_medio, verde_escuro])
-    
-    pygame.draw.rect(tela, cor, [comida_x, comida_y, tamanho, tamanho])
+    pygame.draw.rect(tela, preta, [comida_x, comida_y, tamanho, tamanho], espessura_borda_cobra)
+    pygame.draw.rect(tela, cor, [comida_x + espessura_borda_cobra, comida_y + espessura_borda_cobra, tamanho - 2 * espessura_borda_cobra, tamanho - 2 * espessura_borda_cobra])
     
 def desenhar_cobra(tamanho, pixels):
     for pixel in pixels:
