@@ -7,7 +7,8 @@ pygame.display.set_caption("Jogo Snake Python")
 largura, altura = 800, 600
 margem_total = 16
 margem_borda = 11
-espessura_borda = 3
+espessura_borda_tela = 3
+espessura_borda_cobra = 1
 
 largura += 2 * margem_total
 altura += 2 * margem_total
@@ -25,7 +26,7 @@ verde_escuro = (0, 255, 0)
 
 # Parâmetros da cobra
 tamanho_quadrado = 20
-velocidade_jogo = 15
+velocidade_jogo = 10
 
 def gerar_comida():
     comida_x = margem_total + round(random.randrange(0, largura - 2 * margem_total - tamanho_quadrado) / float(tamanho_quadrado)) * float(tamanho_quadrado)
@@ -39,7 +40,8 @@ def desenhar_comida(tamanho, comida_x, comida_y):
     
 def desenhar_cobra(tamanho, pixels):
     for pixel in pixels:
-        pygame.draw.rect(tela, pixel[2], [pixel[0], pixel[1], tamanho, tamanho])
+        pygame.draw.rect(tela, preta, [pixel[0], pixel[1], tamanho, tamanho], espessura_borda_cobra)
+        pygame.draw.rect(tela, pixel[2], [pixel[0] + espessura_borda_cobra, pixel[1] + espessura_borda_cobra, tamanho - 2 * espessura_borda_cobra, tamanho - 2 * espessura_borda_cobra])
 
 def desenhar_pontuacao(pontuacao):
     fonte = pygame.font.Font("fonts/PixelifySans-VariableFont_wght.ttf", 50)
@@ -66,7 +68,7 @@ def selecionar_velocidade(tecla):
     return velocidade_x, velocidade_y
 
 def desenhar_bordas():
-    pygame.draw.rect(tela, branca, [margem_borda, margem_borda, largura - 2 * margem_borda, altura - 2 * margem_borda], espessura_borda)
+    pygame.draw.rect(tela, branca, [margem_borda, margem_borda, largura - 2 * margem_borda, altura - 2 * margem_borda], espessura_borda_tela)
 
 def rodar_jogo():
     fim_jogo = False
@@ -114,7 +116,7 @@ def rodar_jogo():
         
         # Cobra colidiu em si mesma
         for pixel in pixels[:-1]:
-            if pixel == [x, y]:
+            if pixel[:-1] == [x, y]:
                 fim_jogo = True
         
         desenhar_cobra(tamanho_quadrado, pixels)
