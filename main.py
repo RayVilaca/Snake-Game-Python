@@ -132,9 +132,9 @@ def rodar_jogo():
             tamanho_cobra += 1
             comida_x, comida_y = gerar_comida()
             
-            red = random.randint(0, 255)
-            green = random.randint(0, 255)
-            blue = random.randint(0, 255)
+            red = random.randint(1, 255)
+            green = random.randint(1, 255)
+            blue = random.randint(1, 255)
 
             cor = (red, green, blue)
         
