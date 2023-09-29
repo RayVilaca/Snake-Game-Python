@@ -138,6 +138,7 @@ def rodar_jogo():
     
     velocidade_x = 0
     velocidade_y = 0
+    direcao_cabeca = 3
     
     tamanho_cobra = 1
     pixels = []
@@ -145,7 +146,6 @@ def rodar_jogo():
     comida_x, comida_y = gerar_comida()
     
     cor = cinza
-    direcao_cabeca = 1
     
     while not fim_jogo:
         tela.fill(preta)
@@ -155,8 +155,12 @@ def rodar_jogo():
                 fim_jogo = True
             
             elif evento.type == pygame.KEYDOWN:
+                velocidade_x_anterior, velocidade_y_anterior, direcao_cabeca_anterior = velocidade_x, velocidade_y, direcao_cabeca
                 velocidade_x, velocidade_y, direcao_cabeca = selecionar_velocidade(evento.key)
-        
+                
+                if not (velocidade_x_anterior == 0 and velocidade_y_anterior == 0) and ((velocidade_x_anterior == 0 and velocidade_x == 0) or (velocidade_y_anterior == 0 and velocidade_y == 0)):
+                    velocidade_x, velocidade_y, direcao_cabeca = velocidade_x_anterior, velocidade_y_anterior, direcao_cabeca_anterior
+                
         # Desenhar bordas
         desenhar_bordas()
         
