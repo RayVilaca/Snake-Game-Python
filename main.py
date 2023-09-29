@@ -8,7 +8,8 @@ largura, altura = 800, 600
 margem_total = 16
 margem_borda = 11
 espessura_borda_tela = 3
-espessura_borda_cobra = 1
+espessura_borda_cobra = 2
+espessura_borda_comida = 1
 
 largura += 2 * margem_total
 altura += 2 * margem_total
@@ -27,6 +28,7 @@ verde_escuro = (0, 255, 0)
 # Parâmetros da cobra
 tamanho_quadrado = 20
 velocidade_jogo = 10
+raio_olho = tamanho_quadrado // 8
 
 def gerar_comida():
     comida_x = margem_total + round(random.randrange(0, largura - 2 * margem_total - tamanho_quadrado) / float(tamanho_quadrado)) * float(tamanho_quadrado)
@@ -35,14 +37,34 @@ def gerar_comida():
 
 def desenhar_comida(tamanho, comida_x, comida_y):
     cor = random.choice([verde_claro, verde_medio, verde_escuro])
-    pygame.draw.rect(tela, preta, [comida_x, comida_y, tamanho, tamanho], espessura_borda_cobra)
-    pygame.draw.rect(tela, cor, [comida_x + espessura_borda_cobra, comida_y + espessura_borda_cobra, tamanho - 2 * espessura_borda_cobra, tamanho - 2 * espessura_borda_cobra])
+    pygame.draw.rect(tela, preta, [comida_x, comida_y, tamanho, tamanho], espessura_borda_comida)
+    pygame.draw.rect(tela, cor, [comida_x + espessura_borda_comida, comida_y + espessura_borda_comida, tamanho - 2 * espessura_borda_comida, tamanho - 2 * espessura_borda_comida])
     
-def desenhar_cobra(tamanho, pixels):
-    for pixel in pixels:
+def desenhar_cobra(tamanho, pixels, direcao_cabeca):
+    for pixel in pixels[:-1]:
         pygame.draw.rect(tela, preta, [pixel[0], pixel[1], tamanho, tamanho], espessura_borda_cobra)
         pygame.draw.rect(tela, pixel[2], [pixel[0] + espessura_borda_cobra, pixel[1] + espessura_borda_cobra, tamanho - 2 * espessura_borda_cobra, tamanho - 2 * espessura_borda_cobra])
+    
+    pygame.draw.rect(tela, preta, [pixels[-1][0], pixels[-1][1], tamanho, tamanho], espessura_borda_comida)
+    pygame.draw.rect(tela, pixels[-1][2], [pixels[-1][0] + espessura_borda_comida, pixels[-1][1] + espessura_borda_comida, tamanho - 2 * espessura_borda_comida, tamanho - 2 * espessura_borda_comida])
 
+    # Desenha os olhos como círculos brancos
+    if direcao_cabeca == 0:
+        olho1_x, olho1_y = pixels[-1][0] + tamanho // 4, pixels[-1][1] + tamanho // 4
+        olho2_x, olho2_y = pixels[-1][0] + 3 * tamanho // 4, pixels[-1][1] + tamanho // 4
+    elif direcao_cabeca == 1:
+        olho1_x, olho1_y = pixels[-1][0] + tamanho // 4, pixels[-1][1] + tamanho // 4
+        olho2_x, olho2_y = pixels[-1][0] + tamanho // 4, pixels[-1][1] + 3 * tamanho // 4
+    elif direcao_cabeca == 2:
+        olho1_x, olho1_y = pixels[-1][0] + 3 * tamanho // 4, pixels[-1][1] + 3 * tamanho // 4
+        olho2_x, olho2_y = pixels[-1][0] + tamanho // 4, pixels[-1][1] + 3 * tamanho // 4
+    elif direcao_cabeca == 3:
+        olho1_x, olho1_y = pixels[-1][0] + 3 * tamanho // 4, pixels[-1][1] + 3 * tamanho // 4
+        olho2_x, olho2_y = pixels[-1][0] + 3 * tamanho // 4, pixels[-1][1] + tamanho // 4
+    
+    pygame.draw.circle(tela, preta, (olho1_x, olho1_y), raio_olho)
+    pygame.draw.circle(tela, preta, (olho2_x, olho2_y), raio_olho)
+    
 def desenhar_pontuacao(pontuacao):
     fonte = pygame.font.Font("fonts/PixelifySans-VariableFont_wght.ttf", 50)
     texto = fonte.render(f"{pontuacao:04d}", True, branca)
@@ -52,20 +74,24 @@ def selecionar_velocidade(tecla):
     if tecla == pygame.K_DOWN:
         velocidade_x = 0
         velocidade_y = tamanho_quadrado
+        direcao_cabeca = 2
     
     elif tecla == pygame.K_UP:
         velocidade_x = 0
         velocidade_y = - tamanho_quadrado
+        direcao_cabeca = 0
     
     elif tecla == pygame.K_RIGHT:
         velocidade_x = tamanho_quadrado
         velocidade_y = 0  
+        direcao_cabeca = 3
     
     elif tecla == pygame.K_LEFT:
         velocidade_x = - tamanho_quadrado
         velocidade_y = 0
+        direcao_cabeca = 1
         
-    return velocidade_x, velocidade_y
+    return velocidade_x, velocidade_y, direcao_cabeca
 
 def desenhar_bordas():
     pygame.draw.rect(tela, branca, [margem_borda, margem_borda, largura - 2 * margem_borda, altura - 2 * margem_borda], espessura_borda_tela)
@@ -85,6 +111,7 @@ def rodar_jogo():
     comida_x, comida_y = gerar_comida()
     
     cor = cinza
+    direcao_cabeca = 0
     
     while not fim_jogo:
         tela.fill(preta)
@@ -94,7 +121,7 @@ def rodar_jogo():
                 fim_jogo = True
             
             elif evento.type == pygame.KEYDOWN:
-                velocidade_x, velocidade_y = selecionar_velocidade(evento.key)
+                velocidade_x, velocidade_y, direcao_cabeca = selecionar_velocidade(evento.key)
         
         # Desenhar bordas
         desenhar_bordas()
@@ -119,7 +146,7 @@ def rodar_jogo():
             if pixel[:-1] == [x, y]:
                 fim_jogo = True
         
-        desenhar_cobra(tamanho_quadrado, pixels)
+        desenhar_cobra(tamanho_quadrado, pixels, direcao_cabeca)
         
         # Desenhar os pontos
         desenhar_pontuacao(tamanho_cobra-1)
