@@ -104,27 +104,24 @@ def desenhar_pontuacao(pontuacao):
     texto = fonte.render(f"{pontuacao:04d}", True, branca)
     tela.blit(texto, [margem_total, 1])
 
-def selecionar_velocidade(tecla, velocidade_x, velocidade_y, direcao_cabeca):
+def selecionar_velocidade(tecla):
     
-    vertical = False if velocidade_y == 0 else True
-    parado = True if velocidade_x == 0 and velocidade_y == 0 else False
-    
-    if tecla == pygame.K_DOWN and (not vertical or parado):
+    if tecla == pygame.K_DOWN:
         velocidade_x = 0
         velocidade_y = tamanho_quadrado
         direcao_cabeca = 2
     
-    elif tecla == pygame.K_UP and (not vertical or parado):
+    elif tecla == pygame.K_UP:
         velocidade_x = 0
         velocidade_y = - tamanho_quadrado
         direcao_cabeca = 0
     
-    elif tecla == pygame.K_RIGHT and (vertical or parado):
+    elif tecla == pygame.K_RIGHT:
         velocidade_x = tamanho_quadrado
         velocidade_y = 0  
         direcao_cabeca = 3
     
-    elif tecla == pygame.K_LEFT and (vertical or parado):
+    elif tecla == pygame.K_LEFT:
         velocidade_x = - tamanho_quadrado
         velocidade_y = 0
         direcao_cabeca = 1
@@ -151,15 +148,19 @@ def rodar_jogo():
     
     cor = cinza
     
+    teclas_possiveis = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
+    
     while not fim_jogo:
         tela.fill(preta)
+        
+        velocidade_x_anterior, velocidade_y_anterior, direcao_cabeca_anterior = velocidade_x, velocidade_y, direcao_cabeca
         
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 fim_jogo = True
             
-            elif evento.type == pygame.KEYDOWN:
-                velocidade_x, velocidade_y, direcao_cabeca = selecionar_velocidade(evento.key, velocidade_x, velocidade_y, direcao_cabeca)
+            elif evento.type == pygame.KEYDOWN and evento.key in teclas_possiveis:
+                velocidade_x, velocidade_y, direcao_cabeca = selecionar_velocidade(evento.key)
                 
         # Desenhar bordas
         desenhar_bordas()
@@ -171,6 +172,9 @@ def rodar_jogo():
             fim_jogo = True
         
         # Atualizar a posição da cobra
+        if (velocidade_x_anterior != 0 or velocidade_y_anterior != 0) and (abs(velocidade_x_anterior) == abs(velocidade_x) or abs(velocidade_y_anterior) == abs(velocidade_y)):
+            velocidade_x, velocidade_y, direcao_cabeca = velocidade_x_anterior, velocidade_y_anterior, direcao_cabeca_anterior
+        
         x += velocidade_x
         y += velocidade_y
         
