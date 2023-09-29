@@ -24,11 +24,13 @@ cinza = (128,128,128)
 verde_claro = (144,238,144)
 verde_medio = (50,205,50)
 verde_escuro = (0, 255, 0)
+vermelha = (128,0,0)
 
 # Parâmetros da cobra
 tamanho_quadrado = 20
 velocidade_jogo = 10
 raio_olho = tamanho_quadrado // 8
+tamanho_lingua = 8
 
 def gerar_comida():
     comida_x = margem_total + round(random.randrange(0, largura - 2 * margem_total - tamanho_quadrado) / float(tamanho_quadrado)) * float(tamanho_quadrado)
@@ -45,25 +47,57 @@ def desenhar_cobra(tamanho, pixels, direcao_cabeca):
         pygame.draw.rect(tela, preta, [pixel[0], pixel[1], tamanho, tamanho], espessura_borda_cobra)
         pygame.draw.rect(tela, pixel[2], [pixel[0] + espessura_borda_cobra, pixel[1] + espessura_borda_cobra, tamanho - 2 * espessura_borda_cobra, tamanho - 2 * espessura_borda_cobra])
     
-    pygame.draw.rect(tela, preta, [pixels[-1][0], pixels[-1][1], tamanho, tamanho], espessura_borda_comida)
-    pygame.draw.rect(tela, pixels[-1][2], [pixels[-1][0] + espessura_borda_comida, pixels[-1][1] + espessura_borda_comida, tamanho - 2 * espessura_borda_comida, tamanho - 2 * espessura_borda_comida])
-
-    # Desenha os olhos como círculos brancos
-    if direcao_cabeca == 0:
-        olho1_x, olho1_y = pixels[-1][0] + tamanho // 4, pixels[-1][1] + tamanho // 4
-        olho2_x, olho2_y = pixels[-1][0] + 3 * tamanho // 4, pixels[-1][1] + tamanho // 4
-    elif direcao_cabeca == 1:
-        olho1_x, olho1_y = pixels[-1][0] + tamanho // 4, pixels[-1][1] + tamanho // 4
-        olho2_x, olho2_y = pixels[-1][0] + tamanho // 4, pixels[-1][1] + 3 * tamanho // 4
-    elif direcao_cabeca == 2:
-        olho1_x, olho1_y = pixels[-1][0] + 3 * tamanho // 4, pixels[-1][1] + 3 * tamanho // 4
-        olho2_x, olho2_y = pixels[-1][0] + tamanho // 4, pixels[-1][1] + 3 * tamanho // 4
-    elif direcao_cabeca == 3:
-        olho1_x, olho1_y = pixels[-1][0] + 3 * tamanho // 4, pixels[-1][1] + 3 * tamanho // 4
-        olho2_x, olho2_y = pixels[-1][0] + 3 * tamanho // 4, pixels[-1][1] + tamanho // 4
+    x, y = pixels[-1][0], pixels[-1][1]
     
+    pygame.draw.rect(tela, preta, [x, y, tamanho, tamanho], espessura_borda_comida)
+    pygame.draw.rect(tela, pixels[-1][2], [x + espessura_borda_comida, y + espessura_borda_comida, tamanho - 2 * espessura_borda_comida, tamanho - 2 * espessura_borda_comida])
+    
+    if direcao_cabeca == 0:
+        olho1_x, olho1_y = x + tamanho // 4, y + tamanho // 4
+        olho2_x, olho2_y = x + 3 * tamanho // 4, y + tamanho // 4
+        
+        lingua_points = [(x + tamanho // 4 + tamanho // 8, y),
+                     (x + tamanho // 4 + tamanho // 8, y - tamanho_lingua),
+                     (x + 2 * tamanho // 4, y - (tamanho_lingua // 2 + 1)),
+                     (x + 2 * tamanho // 4 + tamanho // 8, y - tamanho_lingua),
+                     (x + 2 * tamanho // 4 + tamanho // 8, y)]
+        
+    elif direcao_cabeca == 1:
+        olho1_x, olho1_y = x + tamanho // 4, y + tamanho // 4
+        olho2_x, olho2_y = x + tamanho // 4, y + 3 * tamanho // 4
+        
+        lingua_points = [(x, y + tamanho // 4 + tamanho // 8),
+                     (x - tamanho_lingua, y + tamanho // 4 + tamanho // 8),
+                     (x - (tamanho_lingua // 2 + 1), y + 2 * tamanho // 4),
+                     (x - tamanho_lingua, y + 2 * tamanho // 4 + tamanho // 8),
+                     (x, y + 2 * tamanho // 4 + tamanho // 8)]
+        
+    elif direcao_cabeca == 2:
+        olho1_x, olho1_y = x + 3 * tamanho // 4, y + 3 * tamanho // 4
+        olho2_x, olho2_y = x + tamanho // 4, y + 3 * tamanho // 4
+        
+        lingua_points = [(x + tamanho // 4 + tamanho // 8, y + tamanho),
+                     (x + tamanho // 4 + tamanho // 8, y + tamanho + tamanho_lingua),
+                     (x + 2 * tamanho // 4, y + tamanho + (tamanho_lingua // 2 + 1)),
+                     (x + 2 * tamanho // 4 + tamanho // 8, y + tamanho + tamanho_lingua),
+                     (x + 2 * tamanho // 4 + tamanho // 8, y + tamanho)]
+        
+    elif direcao_cabeca == 3:
+        olho1_x, olho1_y = x + 3 * tamanho // 4, y + 3 * tamanho // 4
+        olho2_x, olho2_y = x + 3 * tamanho // 4, y + tamanho // 4
+        
+        lingua_points = [(x + tamanho, y + tamanho // 4 + tamanho // 8),
+                     (x + tamanho + tamanho_lingua, y + tamanho // 4 + tamanho // 8),
+                     (x + tamanho + (tamanho_lingua // 2 + 1), y + 2 * tamanho // 4),
+                     (x + tamanho + tamanho_lingua, y + 2 * tamanho // 4 + tamanho // 8),
+                     (x + tamanho, y + 2 * tamanho // 4 + tamanho // 8)]
+    
+    # Desenha os olhos como círculos brancos
     pygame.draw.circle(tela, preta, (olho1_x, olho1_y), raio_olho)
     pygame.draw.circle(tela, preta, (olho2_x, olho2_y), raio_olho)
+    
+    # Desenha a língua da cobra (forma de "W")
+    pygame.draw.polygon(tela, vermelha, lingua_points)
     
 def desenhar_pontuacao(pontuacao):
     fonte = pygame.font.Font("fonts/PixelifySans-VariableFont_wght.ttf", 50)
@@ -111,7 +145,7 @@ def rodar_jogo():
     comida_x, comida_y = gerar_comida()
     
     cor = cinza
-    direcao_cabeca = 0
+    direcao_cabeca = 1
     
     while not fim_jogo:
         tela.fill(preta)
